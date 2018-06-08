@@ -1,0 +1,16 @@
+{
+	"zookeeper": {
+		"sessionTimeout": 60000,
+		"servers": [
+			{"address": "127.0.0.1", "port": 2181}
+		]
+	},
+	"holdTime": 30,
+	"paths": [
+		"/foo",
+		"/moray"
+	],
+	"domains": [
+		"moray.coal-1.joyent.us"
+	]
+}

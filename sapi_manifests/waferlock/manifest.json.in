@@ -1,0 +1,5 @@
+{
+	"name": "waferlock",
+	"path": "@@PREFIX@@/etc/config.json",
+	"post_cmd": "/usr/sbin/svcadm restart waferlock"
+}
