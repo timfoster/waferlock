@@ -1,0 +1,13 @@
+/node_modules
+/tmp
+/cache/
+build
+/make_stamps
+docs/*.json
+docs/*.html
+cscope.in.out
+cscope.po.out
+cscope.out
+man
+smf/manifests/waferlock.xml
+sapi_manifests/waferlock/manifest.json

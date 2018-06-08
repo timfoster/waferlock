@@ -1,0 +1,30 @@
+{
+	"zookeeper": {
+		"sessionTimeout": 60000,
+		"servers": [
+			{{#ZK_SERVERS}}
+				{ "address": "{{{host}}}", "port": {{{port}}} }
+				{{^last}},{{/last}}
+			{{/ZK_SERVERS}}
+		]
+	},
+	"holdTime": 600,
+	"paths": [
+		{{! "dns_domain" being set means we are in Triton (not Manta) }}
+		{{#dns_domain}}
+			"/moray"
+		{{/dns_domain}}
+	],
+	"domains": [
+		{{#dns_domain}}
+			"{{{moray_domain}}}"
+		{{/dns_domain}}
+		{{^dns_domain}}
+			"moray.{{{DOMAIN_NAME}}}",
+			"ops.{{{DOMAIN_NAME}}}",
+			"madtom.{{{DOMAIN_NAME}}}",
+			"pgstatsmon.{{{DOMAIN_NAME}}}",
+			"reshard.{{{DOMAIN_NAME}}}"
+		{{/dns_domain}}
+	]
+}
