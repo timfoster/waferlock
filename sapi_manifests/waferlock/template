@@ -17,7 +17,9 @@
 	],
 	"domains": [
 		{{#dns_domain}}
-			"{{{moray_domain}}}"
+			"{{{moray_domain}}}",
+			{{! Don't use pgstatsmon_domain, might not be set. }}
+			"pgstatsmon.{{{datacenter_name}}}.{{{dns_domain}}}"
 		{{/dns_domain}}
 		{{^dns_domain}}
 			"moray.{{{DOMAIN_NAME}}}",
