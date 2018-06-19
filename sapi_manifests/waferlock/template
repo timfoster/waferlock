@@ -8,25 +8,40 @@
 			{{/ZK_SERVERS}}
 		]
 	},
+
 	"holdTime": 600,
-	"paths": [
-		{{! "dns_domain" being set means we are in Triton (not Manta) }}
-		{{#dns_domain}}
-			"/moray"
-		{{/dns_domain}}
-	],
-	"domains": [
-		{{#dns_domain}}
+
+	{{! The SAPI polling interval can be shortened when ipmon shows
+	    denials are taking place. }}
+	"sapiPollingInterval": {
+		"max": 240,	{{! Poll at least once every 240s }}
+		"min": 30	{{! Never poll more than once every 30s }}
+	},
+
+	{{! "dns_domain" being set means we are in Triton (not Manta) }}
+	{{#dns_domain}}
+		{{! sdc-manatee registers itself under /moray :( }}
+		"paths": ["/moray"],
+		"domains": [
 			"{{{moray_domain}}}",
 			{{! Don't use pgstatsmon_domain, might not be set. }}
 			"pgstatsmon.{{{datacenter_name}}}.{{{dns_domain}}}"
-		{{/dns_domain}}
-		{{^dns_domain}}
+		],
+		"sapi_url": "{{{sapi-url}}}",
+		"sapi_services": ["sdc/moray"],
+		"dns_domain": "{{{dns_domain}}}"
+	{{/dns_domain}}
+	{{^dns_domain}}
+		"paths": [],
+		"domains": [
 			"moray.{{{DOMAIN_NAME}}}",
 			"ops.{{{DOMAIN_NAME}}}",
 			"madtom.{{{DOMAIN_NAME}}}",
 			"pgstatsmon.{{{DOMAIN_NAME}}}",
 			"reshard.{{{DOMAIN_NAME}}}"
-		{{/dns_domain}}
-	]
+		],
+		"sapi_url": "{{{SAPI_URL}}}",
+		"sapi_services": ["manta/moray"],
+		"dns_domain": "{{{DNS_DOMAIN}}}"
+	{{/dns_domain}}
 }
