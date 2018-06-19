@@ -8,6 +8,8 @@
  * Copyright (c) 2018, Joyent, Inc.
  */
 
+'use strict';
+
 var mod_assert = require('assert-plus');
 var mod_verror = require('verror');
 var mod_bunyan = require('bunyan');
@@ -15,6 +17,8 @@ var mod_fs = require('fs');
 var mod_util = require('util');
 var mod_path = require('path');
 var mod_fsm = require('mooremachine');
+var mod_cueball = require('cueball');
+var mod_url = require('url');
 
 var lib_ipf = require('./lib/ipf');
 var Ipf = lib_ipf.Ipf;
@@ -23,6 +27,9 @@ var IpMon = lib_ipf.IpMon;
 
 var lib_zk = require('./lib/zk');
 var ZKCache = lib_zk.ZKCache;
+
+var lib_sapi = require('./lib/sapi');
+var SapiPoller = lib_sapi.SapiPoller;
 
 var VError = mod_verror.VError;
 
@@ -34,8 +41,17 @@ var config = JSON.parse(mod_fs.readFileSync(confFile, 'utf-8'));
 mod_assert.object(config, 'config');
 mod_assert.object(config.zookeeper, 'config.zookeeper');
 mod_assert.number(config.holdTime, 'config.holdTime');
+mod_assert.string(config.dns_domain, 'config.dns_domain');
+mod_assert.string(config.sapi_url, 'config.sapi_url');
+mod_assert.object(config.sapiPollingInterval, 'config.sapiPollingInterval');
+mod_assert.number(config.sapiPollingInterval.min,
+    'config.sapiPollingInterval.min');
+mod_assert.number(config.sapiPollingInterval.max,
+    'config.sapiPollingInterval.max');
+
 mod_assert.optionalArrayOfString(config.paths, 'config.paths');
 mod_assert.optionalArrayOfString(config.domains, 'config.domains');
+mod_assert.optionalArrayOfString(config.sapi_services, 'config.sapi_services');
 
 if (config.paths === undefined)
 	config.paths = [];
@@ -59,6 +75,32 @@ function AppFSM() {
 	this.af_err = null;
 	this.af_denials = {};
 	this.af_log = log;
+	this.af_sapis = {};
+
+	var agopts = {
+		spares: 1,
+		maximum: 3,
+		ping: '/ping',
+		pingInterval: 90000,
+		tcpKeepAliveInitialDelay: 5000,
+		recovery: {
+			default: {
+				timeout: 2000,
+				maxTimeout:
+				    config.sapiPollingInterval.min * 1000,
+				retries: 6,
+				delay: 5000,
+				maxDelay: config.sapiPollingInterval.max * 1000
+			}
+		}
+	};
+	var url = mod_url.parse(config.sapi_url);
+	if (/^sapi\./.test(url.hostname)) {
+		agopts.resolvers = [
+		    url.hostname.replace(/^sapi\./, 'binder.') ];
+	}
+	this.af_agent = new mod_cueball.HttpAgent(agopts);
+
 	mod_fsm.FSM.call(this, 'init');
 }
 mod_util.inherits(AppFSM, mod_fsm.FSM);
@@ -131,10 +173,40 @@ AppFSM.prototype.state_waitInitialData = function (S) {
 		if (nodes === lastNodes && nodes > roots) {
 			/* Wait an extra sec just in case */
 			S.timeout(1000, function () {
-				S.gotoState('loadRules');
+				S.gotoState('setupSapi');
 			});
 		}
 		lastNodes = nodes;
+	});
+};
+
+AppFSM.prototype.state_setupSapi = function (S) {
+	if (!config.sapi_services || config.sapi_services.length === 0) {
+		S.gotoState('loadRules');
+		return;
+	}
+	var self = this;
+	config.sapi_services.forEach(function (svc) {
+		self.af_sapis[svc] = new SapiPoller({
+			log: log,
+			pool: self.af_pool,
+			url: config.sapi_url,
+			service: svc,
+			dns_domain: config.dns_domain,
+			minPoll: config.sapiPollingInterval.min,
+			maxPoll: config.sapiPollingInterval.max,
+			agent: self.af_agent
+		});
+		/*
+		 * Wait for any one of these to finish polling and go to sleep.
+		 * We don't care which one -- the first one that does will kick
+		 * us out of this state.
+		 */
+		S.on(self.af_sapis[svc], 'stateChanged', function (st) {
+			if (st === 'sleep') {
+				S.gotoState('loadRules');
+			}
+		});
 	});
 };
 
@@ -179,6 +251,9 @@ AppFSM.prototype.state_enforcing = function (S) {
 		var ds = self.af_denials[fromIp];
 		if (ds === undefined) {
 			ds = (self.af_denials[fromIp] = {});
+			Object.keys(self.af_sapis).forEach(function (k) {
+				self.af_sapis[k].trigger();
+			});
 		}
 		if (ds[toPort] === undefined) {
 			self.af_log.debug({ fromIp: fromIp, fromPort: fromPort,
