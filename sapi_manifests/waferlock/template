@@ -24,6 +24,7 @@
 		"paths": ["/moray"],
 		"domains": [
 			"{{{moray_domain}}}",
+			"{{{BINDER_SERVICE}}}",
 			{{! Don't use pgstatsmon_domain, might not be set. }}
 			"pgstatsmon.{{{datacenter_name}}}.{{{dns_domain}}}"
 		],
@@ -38,7 +39,8 @@
 			"ops.{{{DOMAIN_NAME}}}",
 			"madtom.{{{DOMAIN_NAME}}}",
 			"pgstatsmon.{{{DOMAIN_NAME}}}",
-			"reshard.{{{DOMAIN_NAME}}}"
+			"reshard.{{{DOMAIN_NAME}}}",
+			"nameservice.{{{DOMAIN_NAME}}}"
 		],
 		"sapi_url": "{{{SAPI_URL}}}",
 		"sapi_services": ["manta/moray"],
