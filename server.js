@@ -48,6 +48,7 @@ mod_assert.number(config.sapiPollingInterval.min,
     'config.sapiPollingInterval.min');
 mod_assert.number(config.sapiPollingInterval.max,
     'config.sapiPollingInterval.max');
+mod_assert.optionalString(config.shard, 'config.shard');
 
 mod_assert.optionalArrayOfString(config.paths, 'config.paths');
 mod_assert.optionalArrayOfString(config.domains, 'config.domains');
@@ -195,6 +196,7 @@ AppFSM.prototype.state_setupSapi = function (S) {
 			dns_domain: config.dns_domain,
 			minPoll: config.sapiPollingInterval.min,
 			maxPoll: config.sapiPollingInterval.max,
+			shard: config.shard,
 			agent: self.af_agent
 		});
 		/*
