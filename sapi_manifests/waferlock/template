@@ -37,7 +37,7 @@
 	{{^dns_domain}}
 		"paths": [],
 		"domains": [
-			"moray.{{{DOMAIN_NAME}}}",
+			"{{{SHARD}}}.moray.{{{DOMAIN_NAME}}}",
 			"ops.{{{DOMAIN_NAME}}}",
 			"madtom.{{{DOMAIN_NAME}}}",
 			"pgstatsmon.{{{DOMAIN_NAME}}}",
@@ -46,6 +46,7 @@
 		],
 		"sapi_url": "{{{SAPI_URL}}}",
 		"sapi_services": ["manta/moray"],
+		"shard": "{{{SHARD}}}",
 		"dns_domain": "{{{DNS_DOMAIN}}}"
 	{{/dns_domain}}
 }
