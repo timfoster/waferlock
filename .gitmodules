@@ -1,3 +1,6 @@
 [submodule "deps/jsstyle"]
 	path = deps/jsstyle
 	url = https://github.com/davepacheco/jsstyle.git
+[submodule "deps/eng"]
+	path = deps/eng
+	url = /Users/timf/projects/submodule/eng.git

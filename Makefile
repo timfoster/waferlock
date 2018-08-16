@@ -16,7 +16,9 @@ TAPE :=			./node_modules/.bin/tape
 #
 # Makefile.defs defines variables used as part of the build process.
 #
-include ./tools/mk/Makefile.defs
+# XXX timf comment out during eng development
+#REQUIRE_ENG := $(shell git submodule update --init deps/eng)
+include ./deps/eng/tools/mk/Makefile.defs
 
 SAPI_MANIFESTS_IN =	sapi_manifests/waferlock/manifest.json.in
 SAPI_MANIFESTS +=	$(SAPI_MANIFESTS_IN:%.in=%)
@@ -28,7 +30,7 @@ CLEAN_FILES +=		$(SAPI_MANIFESTS_IN:%.in=%)
 #
 #DOC_FILES =		index.md boilerplateapi.md
 JSON_FILES =		package.json $(SAPI_MANIFESTS)
-JS_FILES :=		$(shell find lib test -name '*.js') server.js
+JS_FILES :=		$(shell find lib -name '*.js') server.js
 ESLINT_FILES =		$(JS_FILES)
 JSSTYLE_FILES =		$(JS_FILES)
 
@@ -41,7 +43,7 @@ PREFIX ?=		/opt/smartdc/waferlock
 # for SMF manifest files.
 #
 SMF_MANIFESTS_IN =	smf/manifests/waferlock.xml.in
-include ./tools/mk/Makefile.smf.defs
+include ./deps/eng/tools/mk/Makefile.smf.defs
 
 #
 # Historically, Node packages that make use of binary add-ons must ship their
@@ -55,7 +57,7 @@ NODE_PREBUILT_VERSION =	v4.9.0
 NODE_PREBUILT_IMAGE = 18b094b0-eb01-11e5-80c1-175dac7ddf02
 ifeq ($(shell uname -s),SunOS)
 	NODE_PREBUILT_TAG = gz
-	include ./tools/mk/Makefile.node_prebuilt.defs
+	include ./deps/eng/tools/mk/Makefile.node_prebuilt.defs
 else
 	NODE := $(shell which node)
 	NPM := $(shell which npm)
@@ -68,7 +70,7 @@ endif
 # including this Makefile, we can depend on $(STAMP_NODE_MODULES) to drive "npm
 # install" correctly.
 #
-include ./tools/mk/Makefile.node_modules.defs
+include ./deps/eng/tools/mk/Makefile.node_modules.defs
 
 
 #
@@ -77,7 +79,7 @@ include ./tools/mk/Makefile.node_modules.defs
 
 RELEASE_TARBALL         := waferlock-pkg-$(STAMP).tar.bz2
 ROOT                    := $(shell pwd)
-RELSTAGEDIR             := /tmp/$(STAMP)
+RELSTAGEDIR             := /tmp/$(NAME)-$(STAMP)
 
 #
 # Repo-specific targets
@@ -138,17 +140,17 @@ publish: release
 # the "defs" Makefiles we included above.
 #
 
-include ./tools/mk/Makefile.deps
+include ./deps/eng/tools/mk/Makefile.deps
 
 ifeq ($(shell uname -s),SunOS)
-	include ./tools/mk/Makefile.node_prebuilt.targ
+	include ./deps/eng/tools/mk/Makefile.node_prebuilt.targ
 else
-	include ./tools/mk/Makefile.node.targ
+	include ./deps/eng/tools/mk/Makefile.node.targ
 endif
 
-include ./tools/mk/Makefile.smf.targ
-include ./tools/mk/Makefile.node_modules.targ
-include ./tools/mk/Makefile.targ
+include ./deps/eng/tools/mk/Makefile.smf.targ
+include ./deps/eng/tools/mk/Makefile.node_modules.targ
+include ./deps/eng/tools/mk/Makefile.targ
 
 $(SAPI_MANIFESTS): %: %.in
 	$(SED) \
