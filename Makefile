@@ -8,6 +8,8 @@
 # Copyright (c) 2018, Joyent, Inc.
 #
 
+NAME = waferlock
+
 #
 # Tools
 #
@@ -20,7 +22,7 @@ TAPE :=			./node_modules/.bin/tape
 #REQUIRE_ENG := $(shell git submodule update --init deps/eng)
 include ./deps/eng/tools/mk/Makefile.defs
 
-SAPI_MANIFESTS_IN =	sapi_manifests/waferlock/manifest.json.in
+SAPI_MANIFESTS_IN =	sapi_manifests/$(NAME)/manifest.json.in
 SAPI_MANIFESTS +=	$(SAPI_MANIFESTS_IN:%.in=%)
 CLEAN_FILES +=		$(SAPI_MANIFESTS_IN:%.in=%)
 
@@ -36,13 +38,13 @@ JSSTYLE_FILES =		$(JS_FILES)
 
 JSSTYLE_FLAGS =		-f tools/jsstyle.conf
 
-PREFIX ?=		/opt/smartdc/waferlock
+PREFIX ?=		/opt/smartdc/$(NAME)
 
 #
 # Configuration used by Makefile.smf.defs to generate "check" and "all" targets
 # for SMF manifest files.
 #
-SMF_MANIFESTS_IN =	smf/manifests/waferlock.xml.in
+SMF_MANIFESTS_IN =	smf/manifests/$(NAME).xml.in
 include ./deps/eng/tools/mk/Makefile.smf.defs
 
 #
@@ -77,7 +79,7 @@ include ./deps/eng/tools/mk/Makefile.node_modules.defs
 # MG Variables
 #
 
-RELEASE_TARBALL         := waferlock-pkg-$(STAMP).tar.bz2
+RELEASE_TARBALL         := $(NAME)-pkg-$(STAMP).tar.bz2
 ROOT                    := $(shell pwd)
 RELSTAGEDIR             := /tmp/$(NAME)-$(STAMP)
 
@@ -132,8 +134,8 @@ publish: release
 		@echo "error: 'BITS_DIR' must be set for 'publish' target"; \
 		exit 1; \
 	fi
-	mkdir -p $(BITS_DIR)/waferlock
-	cp $(ROOT)/$(RELEASE_TARBALL) $(BITS_DIR)/waferlock/$(RELEASE_TARBALL)
+	mkdir -p $(BITS_DIR)/$(NAME)
+	cp $(ROOT)/$(RELEASE_TARBALL) $(BITS_DIR)/$(NAME)/$(RELEASE_TARBALL)
 
 #
 # Target definitions.  This is where we include the target Makefiles for
