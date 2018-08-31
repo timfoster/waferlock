@@ -18,9 +18,9 @@ TAPE :=			./node_modules/.bin/tape
 #
 # Makefile.defs defines variables used as part of the build process.
 #
-# XXX timf comment out during eng development
-#REQUIRE_ENG := $(shell git submodule update --init deps/eng)
+REQUIRE_ENG := $(shell git submodule update --init deps/eng)
 include ./deps/eng/tools/mk/Makefile.defs
+TOP ?= $(error Unable to access eng.git submodule Makefiles.)
 
 SAPI_MANIFESTS_IN =	sapi_manifests/$(NAME)/manifest.json.in
 SAPI_MANIFESTS +=	$(SAPI_MANIFESTS_IN:%.in=%)
