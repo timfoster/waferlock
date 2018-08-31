@@ -1,6 +1,7 @@
 /node_modules
 /tmp
 /cache/
+bits
 build
 /make_stamps
 docs/*.json
