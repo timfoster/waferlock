@@ -79,7 +79,7 @@ include ./deps/eng/tools/mk/Makefile.node_modules.defs
 # MG Variables
 #
 
-RELEASE_TARBALL         := $(NAME)-pkg-$(STAMP).tar.bz2
+RELEASE_TARBALL         := $(NAME)-pkg-$(STAMP).tar.gz
 ROOT                    := $(shell pwd)
 RELSTAGEDIR             := /tmp/$(NAME)-$(STAMP)
 
@@ -124,7 +124,7 @@ release: all
 	cp -r \
 		$(ROOT)/build/node \
 		$(RELSTAGEDIR)/root/$(PREFIX)/build
-	(cd $(RELSTAGEDIR) && $(TAR) -jcf $(ROOT)/$(RELEASE_TARBALL) root site)
+	(cd $(RELSTAGEDIR) && $(TAR) -I pigz -cf $(ROOT)/$(RELEASE_TARBALL) root site)
 	rm -rf $(RELSTAGEDIR)
 
 
