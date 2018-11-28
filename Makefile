@@ -18,7 +18,7 @@ TAPE :=			./node_modules/.bin/tape
 #
 # Makefile.defs defines variables used as part of the build process.
 #
-REQUIRE_ENG := $(shell git submodule update --init deps/eng)
+ENGBLD_REQUIRE := $(shell git submodule update --init deps/eng)
 include ./deps/eng/tools/mk/Makefile.defs
 TOP ?= $(error Unable to access eng.git submodule Makefiles.)
 
