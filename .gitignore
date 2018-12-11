@@ -12,4 +12,4 @@ cscope.out
 man
 smf/manifests/waferlock.xml
 sapi_manifests/waferlock/manifest.json
-waferlock-pkg-*.tar.bz2
+waferlock-pkg-*.tar.gz
