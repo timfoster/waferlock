@@ -44,7 +44,7 @@ PREFIX ?=		/opt/smartdc/$(NAME)
 # Configuration used by Makefile.smf.defs to generate "check" and "all" targets
 # for SMF manifest files.
 #
-SMF_MANIFESTS_IN =	smf/manifests/$(NAME).xml.in
+SMF_MANIFESTS =	smf/manifests/$(NAME).xml
 include ./deps/eng/tools/mk/Makefile.smf.defs
 
 #

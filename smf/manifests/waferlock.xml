@@ -7,14 +7,8 @@
 -->
 
 <!--
-    Copyright (c) 2018, Joyent, Inc.
+    Copyright (c) 2019, Joyent, Inc.
 -->
-
-<!--
-  This is a sample SMF manifest. If you want to actually use it, you'll
-  need to update this block comment and replace @@PREFIX@@ in the *generated*
-  file with the path to whereever this package gets installed.
- -->
 
 <service_bundle type="manifest" name="smartdc-waferlock">
 <service name="smartdc/application/waferlock" type="service" version="1">
@@ -26,7 +20,7 @@
 	<service_fmri value="svc:/system/filesystem/local" />
 </dependency>
 
-<exec_method type="method" name="start" exec="@@PREFIX@@/build/node/bin/node --abort-on-uncaught-exception @@PREFIX@@/server.js &amp;" timeout_seconds="30" />
+<exec_method type="method" name="start" exec="/opt/smartdc/waferlock/build/node/bin/node --abort-on-uncaught-exception /opt/smartdc/waferlock/server.js &amp;" timeout_seconds="30" />
 <exec_method type="method" name="stop" exec=":kill" timeout_seconds="30" />
 
 <instance name="default" enabled="true" />
